@@ -27,7 +27,7 @@ class Initiate(luigi.contrib.spark.PySparkTask):
 
     def output(self):
 
-        if test_flg:
+        if self.test_flg:
             return luigi.LocalTarget("pipeline_data/data_iniated_test.csv")
         else:
             return luigi.LocalTarget("pipeline_data/data_initiated.csv")
@@ -53,14 +53,14 @@ class Transform(luigi.contrib.spark.PySparkTask):
     input_file = luigi.Parameter()
 
     def requires(self):
-        return [Initiate(self.input_file)]
+        return [Initiate(self.input_file, test_flg=False)]
 
     def output(self):
         return luigi.LocalTarget("pipeline_data/data_transformed.csv")
 
     def run(self):
         df = sqlContext.read.csv(
-            Initiate(self.input_file).output().path,
+            Initiate(self.input_file, test_flg=False).output().path,
             sep=",",
             header=True,
             inferSchema=True,
