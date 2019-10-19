@@ -45,29 +45,47 @@ class Initiate(luigi.contrib.spark.PySparkTask):
         df = indexer.fit(df).transform(df)
 
         # Save results
-        df.write.csv(self.output().path, header=True)
-
+        train, test = df.randomSplit([0.7, 0.3], seed=12345)
+        if self.test_flg:
+            test.write.csv(self.output().path, header=True)
+        else:
+            train.write.csv(self.output().path, header=True)
 
 class Transform(luigi.contrib.spark.PySparkTask):
 
     input_file = luigi.Parameter()
+    test_flg = luigi.BoolParameter()
 
     def requires(self):
-        return [Initiate(self.input_file, test_flg=False)]
+        return [Initiate(self.input_file,self.test_flg)]
 
     def output(self):
-        return luigi.LocalTarget("pipeline_data/data_transformed.csv")
-
+        if self.test_flg:
+            return luigi.LocalTarget("pipeline_data/data_transformed_test.csv")
+        else:
+            return luigi.LocalTarget("pipeline_data/data_transformed.csv")
+            
     def run(self):
-        df = sqlContext.read.csv(
-            Initiate(self.input_file, test_flg=False).output().path,
-            sep=",",
-            header=True,
-            inferSchema=True,
-        )
-        list_features = ["Age", "Sex_indexed", "Fare", "Survived"]
-        df = df.select(*list_features)
-        df.write.csv(self.output().path, header=True)
+        if self.test_flg:
+            df = sqlContext.read.csv(
+                Initiate(self.input_file, self.test_flg=True).output().path,
+                sep=",",
+                header=True,
+                inferSchema=True,
+            )
+            list_features = ["Age", "Sex_indexed", "Fare", "Survived"]
+            df = df.select(*list_features)
+            df.write.csv(self.output().path, header=True)
+        else:
+            df = sqlContext.read.csv(
+                Initiate(self.input_file, self.test_flg=False).output().path,
+                sep=",",
+                header=True,
+                inferSchema=True,
+            )
+            list_features = ["Age", "Sex_indexed", "Fare", "Survived"]
+            df = df.select(*list_features)
+            df.write.csv(self.output().path, header=True)
 
 
 if __name__ == "__main__":
