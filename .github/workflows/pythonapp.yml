@@ -29,5 +29,6 @@ jobs:
         pip install pytest
         pytest
     - name: Coverage with codecov
+      run: |
         pip install codecov
         codecov --token=07705169-572b-4cba-b4e9-c5b110f845ed
