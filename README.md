@@ -2,3 +2,6 @@
 
 # luigi_spark_flask_cicd
 Create machine learning data pipelines ready for production
+
+# Commamd to run
+python pipeline.py Transform --local-scheduler --input-file "source_data/titanic.csv"
