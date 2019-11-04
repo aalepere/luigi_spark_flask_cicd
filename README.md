@@ -4,4 +4,4 @@
 Create machine learning data pipelines ready for production
 
 # Commamd to run
-python pipeline.py Transform --local-scheduler --input-file "source_data/titanic.csv"
+PYTHONPATH='.' luigi --module pipeline Transform --local-scheduler --input-file "../source_data/titanic.csv"
