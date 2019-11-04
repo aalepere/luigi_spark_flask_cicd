@@ -49,11 +49,12 @@ class Initiate(luigi.contrib.spark.PySparkTask):
             "train": luigi.LocalTarget("pipeline_data/data_initiated.csv"),
         }
 
-    def run(self):
+    def main(self, sc, *args):
         """ Run all initiate transformation:
             - string features to numeric features
             - split of train/test
         """
+        sqlContext = SQLContext(sc)
         # Read csv file
         df = sqlContext.read.csv(self.input_file, sep="\t", header=True, inferSchema=True)
 
@@ -91,10 +92,11 @@ class Transform(luigi.contrib.spark.PySparkTask):
             "train": luigi.LocalTarget("pipeline_data/data_transformed.csv"),
         }
 
-    def run(self):
+    def main(self, sc, *args):
         """ For each input files, i.e. train and test 'iniated, apply the same set of transformatons
         """
 
+        sqlContext = SQLContext(sc)
         # For each key in the output dictionary of the Initiate task, i.e. train and test
         for inputFile in Initiate(self.input_file).output():
             df = sqlContext.read.csv(
@@ -137,9 +139,10 @@ class Model(luigi.contrib.spark.PySparkTask):
     def output(self):
         """ XXX """
 
-    def run(self):
+    def main(self, sc, *args):
         """ Load train & test, fit the logistic regression and then evaluate """
 
+        sqlContext = SQLContext(sc)
         # Load training file
         df = sqlContext.read.csv(
             Transform(self.input_file).output()["train"].path, sep=",", header=True, inferSchema=True
