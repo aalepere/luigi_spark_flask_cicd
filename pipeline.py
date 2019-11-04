@@ -124,20 +124,21 @@ class Transform(luigi.contrib.spark.PySparkTask):
 
 
 class Model(luigi.contrib.spark.PySparkTask):
-    """ XXX """
+    """ Build a Logistic Regression based on the train transformed data and then evaluates its
+    performance with the test transformed data """
 
     # Keep input_file parameter as used in FileExists
     input_file = luigi.Parameter()
 
     def requires(self):
-        """ XXX """
+        """ Ensure that the data has been transformed """
         return [Transform(self.input_file)]
 
     def output(self):
         """ XXX """
 
     def run(self):
-        """ XXX """
+        """ Load train & test, fit the logistic regression and then evaluate """
 
         # Load training file
         df = sqlContext.read.csv(
