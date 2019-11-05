@@ -35,6 +35,7 @@ class Initiate(luigi.contrib.spark.PySparkTask):
 
     # Keep input_file parameter as used in FileExists
     input_file = luigi.Parameter()
+    output_path = luigi.Parameter()
 
     def requires(self):
         """This task requires that the input file exists"""
@@ -45,8 +46,8 @@ class Initiate(luigi.contrib.spark.PySparkTask):
             way to ensure consistency in the overall pipeline
         """
         return {
-            "test": luigi.LocalTarget("pipeline_data/data_iniated_test.csv"),
-            "train": luigi.LocalTarget("pipeline_data/data_initiated.csv"),
+            "test": luigi.LocalTarget(self.output_path + "/data_initiated_test.csv"),
+            "train": luigi.LocalTarget(self.output_path + "/data_initiated.csv"),
         }
 
     def main(self, sc, *args):
@@ -78,29 +79,33 @@ class Transform(luigi.contrib.spark.PySparkTask):
 
     # Keep input_file parameter as used in FileExists
     input_file = luigi.Parameter()
+    output_path = luigi.Parameter()
 
     def requires(self):
         """Requires both test and train to be initated"""
-        return [Initiate(self.input_file)]
+        return [Initiate(self.input_file, self.output_path)]
 
     def output(self):
         """ Two transformned outputs are saved separetly: train and test, however they are manipulated the same
             way to ensure consistency in the overall pipeline
         """
         return {
-            "test": luigi.LocalTarget("pipeline_data/data_transformed_test.csv"),
-            "train": luigi.LocalTarget("pipeline_data/data_transformed.csv"),
+            "test": luigi.LocalTarget(self.output_path + "/data_transformed_test.csv"),
+            "train": luigi.LocalTarget(self.output_path + "/data_transformed.csv"),
         }
 
     def main(self, sc, *args):
-        """ For each input files, i.e. train and test 'iniated, apply the same set of transformatons
+        """ For each input files, i.e. train and test 'initiated, apply the same set of transformatons
         """
 
         sqlContext = SQLContext(sc)
         # For each key in the output dictionary of the Initiate task, i.e. train and test
-        for inputFile in Initiate(self.input_file).output():
+        for inputFile in Initiate(self.input_file, self.output_path).output():
             df = sqlContext.read.csv(
-                Initiate(self.input_file).output()[inputFile].path, sep=",", header=True, inferSchema=True
+                Initiate(self.input_file, self.output_path).output()[inputFile].path,
+                sep=",",
+                header=True,
+                inferSchema=True,
             )
 
             # Select final list of features
@@ -131,10 +136,11 @@ class Model(luigi.contrib.spark.PySparkTask):
 
     # Keep input_file parameter as used in FileExists
     input_file = luigi.Parameter()
+    output_path = luigi.Parameter()
 
     def requires(self):
         """ Ensure that the data has been transformed """
-        return [Transform(self.input_file)]
+        return [Transform(self.input_file, self.output_path)]
 
     def output(self):
         """ XXX """
@@ -145,7 +151,7 @@ class Model(luigi.contrib.spark.PySparkTask):
         sqlContext = SQLContext(sc)
         # Load training file
         df = sqlContext.read.csv(
-            Transform(self.input_file).output()["train"].path, sep=",", header=True, inferSchema=True
+            Transform(self.input_file, self.output_path).output()["train"].path, sep=",", header=True, inferSchema=True
         )
 
         # Convert all features into a vectors call features
