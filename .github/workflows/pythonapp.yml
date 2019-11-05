@@ -27,5 +27,6 @@ jobs:
     - name: Test with coverage
       run: |
         pip install coverage
-        coverage run pipeline/test_pipeline.py
+        cd pipeline
+        coverage run test_pipeline.py
         coverage report
