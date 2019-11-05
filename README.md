@@ -24,6 +24,11 @@ In this repo, we are mianly using the Machine Learning functionalities of Spark 
 https://spark.apache.org/docs/latest/api/python/pyspark.html
 
 ## Testing & CI/CD
+CI/CD is a framework to frequently deliver code/features to production by introducing automation into the stages of development. 
+The main concepts attributed to CI/CD are continuous integration, continuous delivery, and continuous deployment. 
+CI/CD is a solution to the problems integrating new code can cause for development and data science teams. As usually, data scientists work in a prototyping environment such as jupyter notebooks and has proven to be tricky to then easily move to production.
+
+Specifically, CI/CD introduces ongoing automation and continuous monitoring throughout the lifecycle of data pipeline, from integration and testing phases to delivery and deployment. 
 
 # Installation
 ## Requirements
