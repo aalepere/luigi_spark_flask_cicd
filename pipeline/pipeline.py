@@ -102,10 +102,7 @@ class Transform(luigi.contrib.spark.PySparkTask):
         # For each key in the output dictionary of the Initiate task, i.e. train and test
         for inputFile in Initiate(self.input_file, self.output_path).output():
             df = sqlContext.read.csv(
-                Initiate(self.input_file, self.output_path).output()[inputFile].path,
-                sep=",",
-                header=True,
-                inferSchema=True,
+                Initiate(self.input_file, self.output_path).output()[inputFile].path, sep=",", header=True, inferSchema=True
             )
 
             # Select final list of features
