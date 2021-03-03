@@ -54,5 +54,5 @@ pip install -r requirements.txt
 Below is the command line, you will require to be able to run the pipeline on your local machine:
 ```shell
 cd pipeline
-PYTHONPATH='.' luigi --module pipeline Transform --local-scheduler --input-file "../source_data/titanic.csv" --output-path "data_out"
+PYTHONPATH='.' luigi --module pipeline Model --local-scheduler --input-file "../source_data/titanic.csv" --output-path "data_out"
 ```
