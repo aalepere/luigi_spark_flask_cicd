@@ -1,4 +1,4 @@
 luigi==2.8.9
-pyspark==2.4.4
+pyspark==3.2.2
 numpy==1.17.2
 pandas==0.25.3
